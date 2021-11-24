@@ -5,6 +5,8 @@ datasg segment
     mess4 db 'No match.',13,10,'$'
     mess5 db 'H of the sentence',13,10,'$'
     mess6 db 13,10,'$'
+    use_tab db '1'
+    tel_tab db 50 dup(28 dup(' ')),'$'
     keyword label byte
         max1 db 20
         act1 db ?
@@ -27,10 +29,20 @@ start:
     mov ax,datasg   ; datasg 会随机给他分配一个地址，然后我们将其送入ds (数据段)
     mov ds,ax
     mov es,ax
+    lea ax,use_tab
+    mov bx,ax
+    mov [bx],'1'
     
-    call code2seg
+    lea ax,use_tab
+    mov bx,ax
+    mov dl,[bx]
+    mov ah,02 
+    int 21h
+
+    call code2seg; print tips
     call input_name
-    mov ax,4c00h
+    call stor_name
+    mov ax,4c00h    
     int 21h
 exit: 
     ret
@@ -57,11 +69,11 @@ input_name proc near
     mov bl,keyword+1 ; 输出keyword 中的内容看看
     mov bh,0
     lea si,keyword+2; data
-    mov byte ptr[si+bx],'$'
+    mov [si+bx],'$'
     lea dx,keyword+2; keywork+2 is really the DATA
     mov ah,09  
     int 21h
-    ; 2号中断 是逐个显示字符
+                        ; 2号中断 是逐个显示字符
     lea dx,mess6    ;换行/回车
     mov ah,09
     int 21h
@@ -69,5 +81,10 @@ input_return:
     ret
 input_name endp     
 
+stor_name proc near; 将 keyword 存入 tel_tab
+    
+stor_return:    
+    ret
+stor_name endp
 codesg ends
 end start
