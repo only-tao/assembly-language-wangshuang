@@ -7,10 +7,10 @@ datasg segment
     mess6 db 13,10,'$'
     use_tab db '1'
     tel_tab db 50 dup(28 dup(' ')),'$'
-    keyword label byte
-        max1 db 20
+    keyword label byte; name 
+        max1 db 21
         act1 db ?
-        kw db 20 dup(?)
+        kw db 21 dup(?)
     sentence label byte
         max2 db 120
         act2 db ?
@@ -29,15 +29,17 @@ start:
     mov ax,datasg   ; datasg 会随机给他分配一个地址，然后我们将其送入ds (数据段)
     mov ds,ax
     mov es,ax
-    lea ax,use_tab
-    mov bx,ax
-    mov [bx],'1'
+    lea di,tel_tab
+    ; 
+    ; lea ax,use_tab
+    ; mov bx,ax
+    ; mov [bx],1+'0'
     
-    lea ax,use_tab
-    mov bx,ax
-    mov dl,[bx]
-    mov ah,02 
-    int 21h
+    ; lea ax,use_tab
+    ; mov bx,ax
+    ; mov dl,[bx]
+    ; mov ah,02 
+    ; int 21h
 
     call code2seg; print tips
     call input_name
@@ -81,8 +83,25 @@ input_return:
     ret
 input_name endp     
 
-stor_name proc near; 将 keyword 存入 tel_tab
-    
+stor_name proc near; 将 keyword(name) 存入 tel_tab
+    ; len = keyword+1
+    ; ds:[si] => es:[di]
+    ; es already point to dataseg
+    ;r32 di => tel_tab
+    lea si,kw; keyword+2
+    mov cx,20
+    rep movsb ; 直接串处理
+    ; ret
+
+    lea dx,mess6    ;换行/回车
+    mov ah,09
+    int 21h   
+
+    ; output the tel_tab !!! 
+    ; lea dx,ds:tel_tab; 同样存储了len\use_len
+    ; mov ah,09
+    ; int 21h
+
 stor_return:    
     ret
 stor_name endp
