@@ -1,6 +1,6 @@
 datasg segment
     mess1 db 'Input name:','$'
-    mess2 db 'Enter Sentence:','$'
+    mess2 db 'Input a telephone number:','$'
     mess3 db 'Match at location:','$'
     mess4 db 'No match.',13,10,'$'
     mess5 db 'H of the sentence',13,10,'$'
@@ -44,6 +44,8 @@ start:
     call code2seg; print tips
     call input_name
     call stor_name
+    call show_inputtele
+
     mov ax,4c00h    
     int 21h
 exit: 
@@ -59,7 +61,15 @@ code2seg proc near ;! print mess1
 return: 
     ret
 code2seg endp
-
+show_inputtele proc near
+    lea dx,mess2
+    mov ah,09
+    int 21h
+    lea dx,mess6    ;换行/回车
+    mov ah,09
+    int 21h
+    ret
+show_inputtele endp
 input_name proc near
     ; read the input name 
     lea dx,keyword
@@ -105,5 +115,6 @@ stor_name proc near; 将 keyword(name) 存入 tel_tab
 stor_return:    
     ret
 stor_name endp
+
 codesg ends
 end start
