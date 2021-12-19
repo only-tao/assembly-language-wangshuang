@@ -28,14 +28,14 @@ search:
     push ax
 	; shl bx, cl         ; bx左移cl位   bx = bx*8
     ; 不能用 mul, 否则al 就改变了
-    mov ax,0
+    mov ax,bx
     mov cx,ax
     mov bl,8
     mul bl ; ax*bx
     mov bx,ax
-	pop ax
     ;当bx=001时,bx左移3位 
     ;即 001<<3 => 100 => 8 ,从第八位开始查找
+	pop ax
 	lea di, [bx]		; 4) 查找到当前的位置ds[bx]
 	mov cx, 8			; 5)  查找长度cx=8 (一个string长度就是8)
 	cld
