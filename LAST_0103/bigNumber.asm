@@ -108,32 +108,33 @@ p2:
     inc di
     inc si; next position
     loop fg; loop up ↑
+;*********end add two***********
     cmp carry,1; 最高位的进位1!!!
-    jnz p1; yes 1
-    ; no ↓
+    jnz p1; not == 1,jump p1
+    ; carry==1 ↓
     mov bl,1 ;最高位有进位，加1位并置1
     push bx;bx go to stack
     inc count; len ++;
 p1:
     mov cl,0
-@@:  ;清除前面多余的0
+e15:  ;清除前面多余的0(真的需要这一步???)
     pop ax; answer to ax !!! 
     inc cl
     cmp cl,count
-    jz @F; 如果已经存完了,cl==count
+    jz f10; 如果已经存完了,cl==count,jump to f10
     cmp al,0
-    jz @B ; 此位==0
-@@:  ;@F
+    jz e15 ; 此位==0,back ???  应该是从最开始的不为0的数开始!!!
+f10:  
     push ax ; 再存回去
     dec cl  ;TODO don't know about it !!! 
     sub count,cl
-    mov cl,count 
-@@:  ;@B结果输出  还是倒的,no problem
+    mov cl,count ;?有几个还是几个 ???
+print:  ;结果输出  还是倒的,no problem
     pop dx
     add dl,'0'
     mov ah,2    ; 02号 int 21 interrupt  out character
     int 21h
-    loop @B
+    loop print
 
     MOV AH,4CH
     INT 21H
