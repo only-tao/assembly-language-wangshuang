@@ -2,7 +2,7 @@ DATAS SEGMENT
     A db 100 dup(?);第一个数
     B db 100 dup(?) ;第二个数
     count db ?;记录最大位数
-    temp db ?;进位标志位
+    carry db ?;进位标志位
     len1 db 0;记录A的位数
     len2 db 0;B的位数
 DATAS ENDS
@@ -47,39 +47,29 @@ in2:   ;输入B数组
 @@:; process B[]
     lea si,B; 一个使用 di,一个使用si, 这是需要记住的? si,di只是存储了地址而已
     mov cl,len2
-@@:    ;将数组A倒置
+@@:;将数组B倒置
     pop ax
     mov [si],al
     inc si
     loop @B
+    ;! begin add the two number
     mov bl,len1
-
-    mov al,len2
-
+    mov al,len2; B
     mov count,bl  ;比较出最大位数，并将位数小的数组在高位补0，直到位数相等
-
     cmp bl,al
-
-    jz sa
-
-    jg xy
-
-    mov count,al
-
+    jz sa ; bl = al
+    jg xy ; bl > al
+    mov count,al; al > bl now len(B)>len(A)
     sub al,bl
-
-    mov cl,al
-
+    mov cl,al; loop times
 @@:
-
-    mov [di],0
-
-    inc di
-
+    mov [di],0 ; A 的最后一位的next(实际上是倒着的)  A -- len1 -- di -- 
+    inc di  ;A高位补0, 
     loop @B
-
-    jmp sa
-
+    ;A = 12345+00 
+    ;B = 1234567
+    ;  
+    jmp sa; 已经有了相同的位数，但是现在还是反的，可以进行运算了
 xy:
 
     sub bl,al
@@ -95,107 +85,57 @@ xy:
     loop @B
 
 sa:
-
-    mov cl,count
-
+    mov cl,count; 相同的位数 -> 每次运算的轮数
     lea di,A
-
     lea si,B
-
-    mov temp,0;设置进位标志
-
-    clc
-
-fg:   ;2个数组add
-
+    mov carry,0;设置进位标志
+    clc;CF清零
+fg:;2个数组add ! count one
     mov bl,[si]
-
-    cmp temp,1
-
+    cmp carry,1
     clc
-
-    jnz p3
-
-    stc
-
+    jnz p3; have carry
+    stc; cf=1?
 p3:
-
-    mov temp,0
-
-    adc bl,[di]
-
-    cmp bl,10
-
-    jl p2
-
+    mov carry,0
+    adc bl,[di]; bl=bl+[di]
+    cmp bl,10 ; (16进制的+,但是不重要)
+    jl p2 ; no carry 
     sub bl,10
-
-    mov temp,1
-
+    mov carry,1; 再进一个10
 p2:
-
-    push bx
-
+    push bx ;00bl 结果入栈，
     inc di
-
-    inc si
-
-    loop fg
-
-    cmp temp,1
-
-    jnz p1
-
+    inc si; next position
+    loop fg; loop up ↑
+    cmp carry,1; 最高位的进位1!!!
+    jnz p1; yes 1
+    ; no ↓
     mov bl,1 ;最高位有进位，加1位并置1
-
-    push bx
-
-    inc count
-
+    push bx;bx go to stack
+    inc count; len ++;
 p1:
-
     mov cl,0
-
 @@:  ;清除前面多余的0
-
-    pop ax
-
+    pop ax; answer to ax !!! 
     inc cl
-
     cmp cl,count
-
-    jz @F
-
+    jz @F; 如果已经存完了,cl==count
     cmp al,0
-
-    jz @B
-
-@@:
-
-    push ax
-
-    dec cl
-
+    jz @B ; 此位==0
+@@:  ;@F
+    push ax ; 再存回去
+    dec cl  ;TODO don't know about it !!! 
     sub count,cl
-
-    mov cl,count
-
-@@:  ;结果输出
-
+    mov cl,count 
+@@:  ;@B结果输出  还是倒的,no problem
     pop dx
-
     add dl,'0'
-
-    mov ah,2
-
+    mov ah,2    ; 02号 int 21 interrupt  out character
     int 21h
-
     loop @B
 
     MOV AH,4CH
-
     INT 21H
-
 CODES ENDS
-
 END START
