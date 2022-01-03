@@ -94,11 +94,11 @@ fg:;2个数组add ! count one
     mov bl,[si]
     cmp carry,1
     clc
-    jnz p3; have carry
+    jnz p3; 无进位则to p3 |  carry=1 ?  =1 -> next
     stc; cf=1?
 p3:
     mov carry,0
-    adc bl,[di]; bl=bl+[di]
+    adc bl,[di]; bl=bl+[di] ; here use CF  !!!!!!!!!!!!!!!!!!!
     cmp bl,10 ; (16进制的+,但是不重要)
     jl p2 ; no carry 
     sub bl,10
