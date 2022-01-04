@@ -18,40 +18,41 @@ in1:   ;A数组的输入
     int 21h
     sub al,'0' ; 输入的信息到al    01号21中断
     cmp al,0;判定输入的字符是否是0-9
-    jl @F ; x<0 bad
+    jl endInputA ; x<0 bad
     cmp al,9
-    jg @F ; x>9 bad
+    jg endInputA ; x>9 bad
     push ax ; storage the number
     inc len1 ; 输一个数，长度加1
     jmp in1 ; 又输入n次
-@@:
+endInputA:; end input A
     lea di,A
     mov cl,len1 ; 循环次数设置 set loop times 
-@@:  ;将数组A倒置
+c10:  ;将数组A倒置
     pop ax               ; 一个loop 实现复制
     mov [di],al ; di->A     A[di] <= al
     inc di    ; 12345    =>   54321 in A
-    loop @B   ; 计算的时候正常算就好了
+    loop c10  ;previous @@  计算的时候正常算就好了
+    ; 真tm sb !!!! @S@B@F@U@C@K@
     xor ax,ax
 in2:   ;输入B数组
     mov ah,1
     int 21h
     sub al,'0' ;判定输入的字符是否是0-9
     cmp al,0
-    jl @F
+    jl endInputB
     cmp al,9
-    jg @F
+    jg endInputB
     push ax
     inc len2 ;几乎是相同的功能只是，换了len2,in2 !!!! 
     jmp in2
-@@:; process B[]
+endInputB:; process B[]
     lea si,B; 一个使用 di,一个使用si, 这是需要记住的? si,di只是存储了地址而已
     mov cl,len2
-@@:;将数组B倒置
+e10:;将数组B倒置
     pop ax
     mov [si],al
     inc si
-    loop @B
+    loop e10
     ;! begin add the two number
     mov bl,len1
     mov al,len2; B
